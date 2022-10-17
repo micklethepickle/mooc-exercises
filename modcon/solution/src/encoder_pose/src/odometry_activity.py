@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[12]:
 
 
 # The function written in this cell will actually be ran on your robot (sim or real). 
@@ -21,13 +21,23 @@ def DeltaPhi(encoder_msg, prev_ticks):
     """
     
     # TODO: these are random values, you have to implement your own solution in here
-    ticks = prev_ticks + int(np.random.uniform(0, 10))     
-    delta_phi = np.random.random()
+    ticks = encoder_msg.data
+
+    # Evaluate the number of ticks since the last call 
+    
+    delta_ticks = ticks-prev_ticks    
+
+    # Evaluate the wheel rotation
+
+    N_tot = encoder_msg.resolution #total number of ticks per wheel revolution
+
+    alpha = 2*np.pi/N_tot # rotation per tick in radians 
+
+    delta_phi = alpha*delta_ticks # in radians
 
     return delta_phi, ticks
 
-
-# In[ ]:
+# In[27]:
 
 
 # The function written in this cell will actually be ran on your robot (sim or real). 
@@ -54,9 +64,17 @@ def poseEstimation( R, # radius of wheel (assumed identical) - this is fixed in 
     """
     
     # TODO: these are random values, you have to implement your own solution in here
-    x_curr = np.random.random() 
-    y_curr = np.random.random() 
-    theta_curr = np.random.random() 
+    d_left = delta_phi_left * R
+    d_right = delta_phi_right * R
+    
+    d_traveled = (d_left + d_right)/2
+    d_theta = (d_right - d_left)/ baseline_wheel2wheel
+    
+    
+    theta_curr = d_theta + theta_prev 
+    d_x = d_traveled * np.cos(theta_prev)
+    d_y = d_traveled * np.sin(theta_prev)
+    x_curr = x_prev + d_x
+    y_curr = y_prev + d_y
 
     return x_curr, y_curr, theta_curr
-
